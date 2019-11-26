@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="7e0a9c24-b481-4832-9f15-8733d18b05cf" name="montserrat" url="http://montserrat.salle.url.edu">
+        <fileTransfer host="montserrat.salle.url.edu" port="22" rootFolder="/users/home/alumnes/LS/jordi.sabanes" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
