@@ -1,17 +1,46 @@
 
 #include "server.h"
-#include "system.h"
 
+trama checkTrams(trama t){
+    trama answer;
+    if(t.type == 0x01){
+        if(strcmp(t.header,"[TR_NAME]")==1){
+            show(t.data);
+            show(" se ha conectado\n");
+            answer.type = 0x01;
+            strcpy(answer.header,"[CONOK]");
+            answer.length = 0;
+        }
+    }else if(t.type == 0x02){
+        if(strcmp(t.header,"[MSG]")==1){
+            show(t.data);
+            answer.type = 0x02;
+            strcpy(answer.header,"[MSGOK]");
+            answer.length = 0;
+        }
+    }else if(t.type == 0x06){
+        if(strcmp(t.header,"[]")==1){
+            show(t.data);
+            show(" se ha desconectado\n");
+            answer.type = 0x06;
+            strcpy(answer.header,"[CONKO]");
+            answer.length = 0;
+        }
+    }
+    return answer;
+}
 
 void *sockThread(void *arg){
     int newsock = *((int *)arg);
-    ssize_t len;
-    char buff[513];
+    trama t;
+    trama answer;
     do{
-        len = read (newsock, buff, 512);
-        buff[len] = 0;
-        printf ("%s\n", buff);
-    }while (strcmp(buff,"exit\n") != 0);
+        read (newsock, t.type, sizeof(unsigned char));
+        read (newsock, t.header, sizeof(char*));
+        read (newsock, t.length, sizeof(int));
+        read (newsock, t.data, sizeof(char)*(t.length));
+        answer = checkTrams(t);
+    }while (t.type != 0x06);
     printf("Me piro");
     close (newsock);
     return EXIT_SUCCESS;

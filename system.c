@@ -72,7 +72,7 @@ int processCommand(char command[50],config *Configuration){
     char buffer[50];
     char* puerto = malloc(50*sizeof(char));
     char* user = malloc(50*sizeof(char));
-    char* msg = malloc(50* sizeof(char));
+    char* msg = malloc(500* sizeof(char));
 
 
 
@@ -86,7 +86,7 @@ int processCommand(char command[50],config *Configuration){
             break;
         case 2:
             split(1,command,puerto);
-            socketConnect = conectionSocket(atoi(puerto));
+            connection(puerto, Configuration);
             sprintf(buffer,"Connectando puerto %s \n",puerto);
             show(buffer);
             break;
@@ -179,8 +179,8 @@ void showConnections(config *Configuration){
         show(buffer);
         char *argv;
         argv[0] = "./show_connections.sh";
-        argv[1] = "8720";
-        argv[2] = "8730";
+        argv[1] = portini;
+        argv[2] = portfin;
         argv[3] = NULL;
 
         execv("show_connections.sh",argv);
@@ -222,10 +222,28 @@ int conectionSocket(int port){
 
 //
 
-void sendMsg(int socket, char msg[30]){
-
-    write (socket, msg, sizeof (char)*30);
-
+void sendMsg(int socket, char data[30]){
+    trama msg;
+    msg.type = 0x02;
+    strcpy(msg.header,"[MSG]");
+    msg.length = strlen(data);
+    strcpy(msg.data,data);
+    write (socket, msg.type, sizeof (char));
+    write (socket, msg.header, sizeof (msg.header));
+    write (socket, msg.length, sizeof (int));
+    write (socket, msg.data, sizeof (msg.data));
+}
+void connection(int puerto,config *Configuration){
+    trama msg;
+    socketConnect = conectionSocket(atoi(puerto))
+    msg.type = 0x01;
+    strcpy(msg.header,"[TR_NAME]");
+    msg.length = strlen(Configuration->user);
+    strcpy(msg.data,Configuration->user);
+    write (socket, msg.type, sizeof (char));
+    write (socket, msg.header, sizeof (msg.header));
+    write (socket, msg.length, sizeof (int));
+    write (socket, msg.data, sizeof (msg.data));
 }
 
 

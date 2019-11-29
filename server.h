@@ -8,10 +8,13 @@
 #include <strings.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "system.h"
+
 
 #ifndef CYPHERSYSTEM_SERVER_H
 #define CYPHERSYSTEM_SERVER_H
 
 void createServer(int port);
+trama checkTrams(trama t);
 
 #endif //CYPHERSYSTEM_SERVER_H

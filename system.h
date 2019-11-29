@@ -2,7 +2,15 @@
 #ifndef CYPHERSYSTEM_SYSTEM_H
 #define CYPHERSYSTEM_SYSTEM_H
 
-#endif //CYPHERSYSTEM_SYSTEM_H
+
+typedef struct {
+
+    unsigned char type;
+    char *header;
+    int length;
+    char *data;
+
+} trama;
 
 void read_keyboard(char *string);
 void show(char *string);
@@ -14,3 +22,6 @@ void showConnections(config *Configuration);
 int conectionSocket(int port);
 void sendMsg(int socket, char msg[30]);
 void itoa(int num,char* buff);
+void connection(int puerto, config *Configuration);
+
+#endif //CYPHERSYSTEM_SYSTEM_H
