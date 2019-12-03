@@ -224,26 +224,32 @@ int conectionSocket(int port){
 
 void sendMsg(int socket, char data[30]){
     trama msg;
+    msg.header = malloc(sizeof(char)*5);
+
     msg.type = 0x02;
     strcpy(msg.header,"[MSG]");
     msg.length = strlen(data);
+    msg.data = malloc(sizeof(char)*msg.length);
     strcpy(msg.data,data);
-    write (socket, msg.type, sizeof (char));
-    write (socket, msg.header, sizeof (msg.header));
-    write (socket, msg.length, sizeof (int));
-    write (socket, msg.data, sizeof (msg.data));
+    write (socketConnect, &msg.type, sizeof (char));
+    write (socketConnect, msg.header, sizeof (msg.header));
+    write (socketConnect, &msg.length, sizeof (short));
+    write (socketConnect, msg.data, sizeof (msg.length));
 }
-void connection(int puerto,config *Configuration){
+void connection(char* puerto,config *Configuration){
     trama msg;
-    socketConnect = conectionSocket(atoi(puerto))
+    socketConnect = conectionSocket(atoi(puerto));
+    sleep(1);
     msg.type = 0x01;
+    msg.header = malloc(sizeof(char)*10);
     strcpy(msg.header,"[TR_NAME]");
-    msg.length = strlen(Configuration->user);
+    msg.length = (unsigned short)strlen(Configuration->user);
+    msg.data = malloc(sizeof(Configuration->user));
     strcpy(msg.data,Configuration->user);
-    write (socket, msg.type, sizeof (char));
-    write (socket, msg.header, sizeof (msg.header));
-    write (socket, msg.length, sizeof (int));
-    write (socket, msg.data, sizeof (msg.data));
+    write (socketConnect, &msg.type, sizeof (char));
+    write (socketConnect, msg.header, sizeof (char)*strlen(msg.header));
+    write (socketConnect, &msg.length, sizeof (unsigned short));
+    write (socketConnect, msg.data, sizeof (char)*strlen(Configuration->user));
 }
 
 

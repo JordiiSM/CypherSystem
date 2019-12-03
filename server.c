@@ -3,26 +3,30 @@
 
 trama checkTrams(trama t){
     trama answer;
-    if(t.type == 0x01){
-        if(strcmp(t.header,"[TR_NAME]")==1){
+    if((int)t.type == 0x01){
+        if(strcmp(t.header,"[TR_NAME]")==0){
+            sleep(1);
             show(t.data);
             show(" se ha conectado\n");
             answer.type = 0x01;
+            answer.header = malloc(sizeof(char)*7);
             strcpy(answer.header,"[CONOK]");
             answer.length = 0;
         }
     }else if(t.type == 0x02){
-        if(strcmp(t.header,"[MSG]")==1){
+        if(strcmp(t.header,"[MSG]")==0){
             show(t.data);
             answer.type = 0x02;
+            answer.header = malloc(sizeof(char)*7);
             strcpy(answer.header,"[MSGOK]");
             answer.length = 0;
         }
     }else if(t.type == 0x06){
-        if(strcmp(t.header,"[]")==1){
+        if(strcmp(t.header,"[]")==0){
             show(t.data);
             show(" se ha desconectado\n");
             answer.type = 0x06;
+            answer.header = malloc(sizeof(char)*7);
             strcpy(answer.header,"[CONKO]");
             answer.length = 0;
         }
@@ -31,16 +35,29 @@ trama checkTrams(trama t){
 }
 
 void *sockThread(void *arg){
+
     int newsock = *((int *)arg);
     trama t;
+    t.header = malloc(sizeof(char)*10);
+
+
     trama answer;
-    do{
-        read (newsock, t.type, sizeof(unsigned char));
-        read (newsock, t.header, sizeof(char*));
-        read (newsock, t.length, sizeof(int));
-        read (newsock, t.data, sizeof(char)*(t.length));
-        answer = checkTrams(t);
-    }while (t.type != 0x06);
+   // do{
+   // printf("Haciendo reads\n");
+        read (newsock, &t.type, sizeof(char));
+       // printf("\n type -> 0x%02hhx\n",t.type);
+        read (newsock, t.header, sizeof(char)*11);
+        //printf("\n header -> %s\n",t.header);
+        read (newsock, &t.length, sizeof(unsigned short));
+       // printf("\n length -> %d\n",t.length);
+
+    t.data = malloc(sizeof(char)*t.length);
+        read (newsock, t.data, sizeof(char)*t.length);
+        //printf("\n%s \nSe ha conectado\n",t.data);
+
+    answer = checkTrams(t);
+    sleep(50);
+    //}while (t.type != 0x06);
     printf("Me piro");
     close (newsock);
     return EXIT_SUCCESS;
@@ -83,7 +100,7 @@ void createServer (int port){
 
             newsock = malloc(sizeof(int));
             newsock[i] = accept(sockfd, (void *) &c_addr, &c_len);
-            printf("New connection from %s:%hu\n", inet_ntoa(c_addr.sin_addr), ntohs(c_addr.sin_port));
+            //printf("New connection from %s:%hu\n", inet_ntoa(c_addr.sin_addr), ntohs(c_addr.sin_port));
             estat = pthread_create(&thread[i], NULL, sockThread, &newsock[i]);
             if(estat !=0){
                 show("Error thread\n");

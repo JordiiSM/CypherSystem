@@ -5,9 +5,9 @@
 
 typedef struct {
 
-    unsigned char type;
+    char type;
     char *header;
-    int length;
+    unsigned short length;
     char *data;
 
 } trama;
@@ -22,6 +22,6 @@ void showConnections(config *Configuration);
 int conectionSocket(int port);
 void sendMsg(int socket, char msg[30]);
 void itoa(int num,char* buff);
-void connection(int puerto, config *Configuration);
+void connection(char* puerto, config *Configuration);
 
 #endif //CYPHERSYSTEM_SYSTEM_H
