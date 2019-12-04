@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
         show(" Put filename \n");
         exit(1);
     }
+
     config *Configuration;
     Configuration = (config*) malloc(sizeof(config));
     processConfig(Configuration,argv[1]);

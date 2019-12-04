@@ -1,18 +1,35 @@
 
 #include "server.h"
-
-trama checkTrams(trama t){
+void checkTrams(trama t,int socketTemp){
     trama answer;
+
     if((int)t.type == 0x01){
-        if(strcmp(t.header,"[TR_NAME]")==0){
+//        printf("Username %s\n",username);
+        read (socketTemp, t.header, sizeof(char)*strlen("[TR_NAME]"));
+         //printf("\n type -> 0x%02hhx\n",t.type);
+            //printf("\n header -> %s\n",t.header);
+            read (socketTemp, &t.length, sizeof(unsigned short));
+            //printf("\n length -> %d\n",t.length);
+
+            t.data = malloc(sizeof(char)*t.length);
+            read (socketTemp, t.data, sizeof(char)*t.length);
+            //printf("\n%s \n",t.data);
             sleep(1);
             show(t.data);
             show(" se ha conectado\n");
             answer.type = 0x01;
             answer.header = malloc(sizeof(char)*7);
             strcpy(answer.header,"[CONOK]");
-            answer.length = 0;
-        }
+            answer.length = (unsigned short)strlen(username);
+
+            answer.data = malloc(sizeof(username));
+            strcpy(answer.data,username);
+            write (socketTemp, &answer.type, sizeof (char));
+            write (socketTemp, answer.header, sizeof (char)*strlen(answer.header));
+            write (socketTemp, &answer.length, sizeof (unsigned short));
+            write (socketTemp, answer.data, sizeof (char)*answer.length);//
+            sleep(1);
+
     }else if(t.type == 0x02){
         if(strcmp(t.header,"[MSG]")==0){
             show(t.data);
@@ -31,32 +48,19 @@ trama checkTrams(trama t){
             answer.length = 0;
         }
     }
-    return answer;
 }
 
 void *sockThread(void *arg){
 
     int newsock = *((int *)arg);
     trama t;
+    show("Conexion entrante\n");
     t.header = malloc(sizeof(char)*10);
-
-
-    trama answer;
-   // do{
-   // printf("Haciendo reads\n");
+    //do{
+        //printf("Haciendo reads\n");
         read (newsock, &t.type, sizeof(char));
-       // printf("\n type -> 0x%02hhx\n",t.type);
-        read (newsock, t.header, sizeof(char)*11);
-        //printf("\n header -> %s\n",t.header);
-        read (newsock, &t.length, sizeof(unsigned short));
-       // printf("\n length -> %d\n",t.length);
-
-    t.data = malloc(sizeof(char)*t.length);
-        read (newsock, t.data, sizeof(char)*t.length);
-        //printf("\n%s \nSe ha conectado\n",t.data);
-
-    answer = checkTrams(t);
-    sleep(50);
+    checkTrams(t,newsock);
+    sleep(1);
     //}while (t.type != 0x06);
     printf("Me piro");
     close (newsock);

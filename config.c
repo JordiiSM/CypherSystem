@@ -42,6 +42,8 @@ void processConfig (config *configuration, char *filename){
     char tempport[5];
     int i = 0;
         read_word_text(configuration->user, fd, '\n');
+        username = malloc(sizeof(char)*strlen(configuration->user));
+        strcpy(username,configuration->user);
         read_word_text(configuration->folder, fd, '\n');
         read_word_text(configuration->ip, fd, '\n');
         read_word_text(tempport, fd, '\n');

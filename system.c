@@ -13,7 +13,10 @@
 #include <stdlib.h>
 #include "system.h"
 
-int socketConnect;
+Connections *connectionList;
+int connectionsCounter = 0;
+
+
 
 //-----------------------------------LEER TECLADO------------------------------------
 
@@ -93,7 +96,7 @@ int processCommand(char command[50],config *Configuration){
         case 3:
             split(1,command,user);
             split(2,command,msg);
-            sendMsg(socketConnect,msg);
+            sendMsg(user,msg);
             sprintf(buffer,"Diciendo a %s %s\n",user,msg);
             show(buffer);
             break;
@@ -221,35 +224,76 @@ int conectionSocket(int port){
 }
 
 //
-
-void sendMsg(int socket, char data[30]){
+int findUser(char user[30]){
+    for(int i = 0;i<connectionsCounter;i++){
+        if (strcmp(connectionList[i].name,user)==0){
+            return i;
+        }
+    }
+    return 9999;
+}
+void sendMsg(char user[30],char data[30]){
+    int userID;
+    userID = findUser(user);
     trama msg;
     msg.header = malloc(sizeof(char)*5);
-
     msg.type = 0x02;
     strcpy(msg.header,"[MSG]");
-    msg.length = strlen(data);
+    msg.length = (unsigned short)strlen(data);
     msg.data = malloc(sizeof(char)*msg.length);
     strcpy(msg.data,data);
-    write (socketConnect, &msg.type, sizeof (char));
-    write (socketConnect, msg.header, sizeof (msg.header));
-    write (socketConnect, &msg.length, sizeof (short));
-    write (socketConnect, msg.data, sizeof (msg.length));
+    write (connectionList[userID].socket, &msg.type, sizeof (char));
+    write (connectionList[userID].socket, msg.header, sizeof (char)*strlen(msg.header));
+    write (connectionList[userID].socket, &msg.length, sizeof (unsigned short));
+    write (connectionList[userID].socket, msg.data, sizeof (msg.data));
 }
 void connection(char* puerto,config *Configuration){
     trama msg;
-    socketConnect = conectionSocket(atoi(puerto));
+    trama answer;
     sleep(1);
     msg.type = 0x01;
-    msg.header = malloc(sizeof(char)*10);
+    msg.header = malloc(sizeof(char)*strlen("[TR_NAME]"));
+    answer.header = malloc(sizeof(char)*7);
     strcpy(msg.header,"[TR_NAME]");
+    char *headerOk = "[CONOK]";
     msg.length = (unsigned short)strlen(Configuration->user);
     msg.data = malloc(sizeof(Configuration->user));
     strcpy(msg.data,Configuration->user);
-    write (socketConnect, &msg.type, sizeof (char));
-    write (socketConnect, msg.header, sizeof (char)*strlen(msg.header));
-    write (socketConnect, &msg.length, sizeof (unsigned short));
-    write (socketConnect, msg.data, sizeof (char)*strlen(Configuration->user));
+
+    int socketTemp = conectionSocket(atoi(puerto)); //Realiza conexion
+    //Enviar trama de conexion
+    write (socketTemp, &msg.type, sizeof (char));
+    write (socketTemp, msg.header, sizeof (char)*strlen(msg.header));
+    write (socketTemp, &msg.length, sizeof (unsigned short));
+    write (socketTemp, msg.data, sizeof (char)*strlen(Configuration->user));
+
+    //Recibe respuesta
+    read (socketTemp, &answer.type, sizeof (char));
+    read (socketTemp, answer.header, sizeof (char)*strlen("[CONOK]"));
+    read (socketTemp, &answer.length, sizeof (unsigned short));
+    answer.data = malloc(sizeof(char)*answer.length);
+    read (socketTemp, answer.data, sizeof (char)*answer.length);
+    if(strcmp(answer.header,headerOk)==0){
+        Connections temp;
+        temp.name = malloc(sizeof(char)*strlen(answer.data));
+        strcpy(temp.name,answer.data);
+        temp.socket = socketTemp;
+        connectionList = realloc(connectionList, sizeof(temp));
+        connectionList[connectionsCounter].name = malloc(sizeof(char)*strlen(answer.data));
+        strcpy(connectionList[connectionsCounter].name,temp.name);
+        connectionList[connectionsCounter].socket = temp.socket;
+//        connectionList[connectionsCounter] = temp;
+        free(temp.name);
+        connectionsCounter++;
+       // int userjordi = findUser("Jordi");
+       printf("Counter = %d, Name %s\n",connectionsCounter,connectionList[connectionsCounter-1].name);
+       
+
+    }else{
+        show("No ha sido posible realizar conexion");
+    }
+
+
 }
 
 

@@ -43,6 +43,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/Documents/GitHub/CypherSystem" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RecentsManager">
@@ -77,7 +78,7 @@
       <workItem from="1574761562588" duration="1691000" />
       <workItem from="1574850630017" duration="5144000" />
       <workItem from="1575024997523" duration="3949000" />
-      <workItem from="1575275248079" duration="7361000" />
+      <workItem from="1575275248079" duration="19564000" />
     </task>
     <servers />
   </component>

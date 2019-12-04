@@ -1,6 +1,8 @@
 #ifndef CYPHERSYSTEM_CONFIG_H
 #define CYPHERSYSTEM_CONFIG_H
 
+char *username;
+
 typedef struct {
 
     char user[50];

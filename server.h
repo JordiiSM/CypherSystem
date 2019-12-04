@@ -11,10 +11,11 @@
 #include "system.h"
 
 
+
 #ifndef CYPHERSYSTEM_SERVER_H
 #define CYPHERSYSTEM_SERVER_H
 
 void createServer(int port);
-trama checkTrams(trama t);
+void checkTrams(trama t,int socketTemp);
 
 #endif //CYPHERSYSTEM_SERVER_H
