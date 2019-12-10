@@ -16,8 +16,6 @@
 Connections *connectionList;
 int connectionsCounter = 0;
 
-
-
 //-----------------------------------LEER TECLADO------------------------------------
 
 void read_keyboard(char *string){
@@ -29,7 +27,6 @@ void read_keyboard(char *string){
         read(STDIN_FILENO,&caracter, sizeof(char));
 
         buffer = (char*) realloc (buffer,i+1);
-
         buffer[i] = caracter;
         //Pasa mayus a minus
         if (caracter >= 'A' && caracter <= 'Z'){
@@ -39,7 +36,6 @@ void read_keyboard(char *string){
         if(caracter == '\n'){
             buffer[i] = '\0';
         }
-
         i++;
     }
     strcpy(string,buffer);
@@ -49,9 +45,7 @@ void read_keyboard(char *string){
 //-------------------------------------MOSTRAR POR PANTALLA------------------------------
 
 void show(char *string){
-
     write(STDOUT_FILENO,string, sizeof(char) * strlen(string));
-
 }
 
 void terminal(config *Configuration){
@@ -77,8 +71,6 @@ int processCommand(char command[50],config *Configuration){
     char* user = malloc(50*sizeof(char));
     char* msg = malloc(500* sizeof(char));
 
-
-
     option = analizeCommand(command);
     switch (option){
         case 0:
@@ -87,20 +79,18 @@ int processCommand(char command[50],config *Configuration){
         case 1:
             showConnections(Configuration);
             break;
-        case 2:
+        case 2: //Connect
             split(1,command,puerto);
             connection(puerto, Configuration);
-            sprintf(buffer,"Connectando puerto %s \n",puerto);
             show(buffer);
             break;
-        case 3:
+        case 3: //SendMsg
             split(1,command,user);
             split(2,command,msg);
             sendMsg(user,msg);
             sprintf(buffer,"Diciendo a %s %s\n",user,msg);
             show(buffer);
             break;
-
         case 4:
             split(2,command,user);
             sprintf(buffer,"Mostrando audios de %s\n",user);
@@ -112,8 +102,8 @@ int processCommand(char command[50],config *Configuration){
         case 6:
             show("Bye!!!\n");
             return 1;
-
     }
+
     free(puerto);
     free(user);
     return 0;
@@ -129,46 +119,40 @@ int analizeCommand(char command[50]){
         return 6;
     }
     for(int i = 0;i<30;i++){
-
         buffer[i] = command[i];
-//        show(buffer);
-//        show("\n");
+
         if(strcmp(buffer,"connect")==0){
-                return 2;
+            return 2;
         }else if(strcmp(buffer,"say")==0){
-                return 3;
-            }else if(strcmp(buffer,"show audios")==0){
-                return 4;
-            }else if(strcmp(buffer,"download")==0){
+            return 3;
+        }else if(strcmp(buffer,"show audios")==0){
+            return 4;
+        }else if(strcmp(buffer,"download")==0){
             return 5;
         }
-
     }
     return 0;
 }
  void split (int nword, char text[50],char* splitted){
+
     char nsplit = 0;
     int j = 0;
     for(int i=0;i<50;i++){
         if(nsplit == nword || (nword ==2 && nsplit > 2)){
             splitted[j] = text[i];
             j++;
-
         }
         if(text[i] == ' '){
             nsplit++;
         }
-
-
     }
 }
 
 void showConnections(config *Configuration){
     int connectionFork;
-
     char buffer[100];
-
     connectionFork = fork();
+
     if (connectionFork > 0) { //-------------------padre
         sleep(1);
     }
@@ -185,7 +169,6 @@ void showConnections(config *Configuration){
         argv[1] = portini;
         argv[2] = portfin;
         argv[3] = NULL;
-
         execv("show_connections.sh",argv);
     }
 }
@@ -203,8 +186,7 @@ int conectionSocket(int port){
 
     int sockfd;
     sockfd = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (sockfd < 0)
-    {
+    if (sockfd < 0){
         perror ("socket TCP");
         exit (EXIT_FAILURE);
     }
@@ -220,13 +202,26 @@ int conectionSocket(int port){
         exit (EXIT_FAILURE);
     }
     return sockfd;
-
 }
 
-//
+//Encuentra usuario y retorna ID
 int findUser(char user[30]){
+
     for(int i = 0;i<connectionsCounter;i++){
-        if (strcmp(connectionList[i].name,user)==0){
+        int large = strlen(connectionList[i].name);
+        for (int j = 0; j < large ; j++) {
+            if (connectionList[i].name[j] >= 'A' && connectionList[i].name[j] <= 'Z'){
+                connectionList[i].name[j] = connectionList[i].name[j] - ('A'-'a');
+            }
+        }
+        large = strlen(user);
+        for (int j = 0; j < large ; j++) {
+            if (user[j]== '\n' || user[j]== ' ' ){
+
+                user[j]='\0';
+            }
+        }
+        if (strcmp(connectionList[i].name,user)==0){ //se ha encontrado el usuario
             return i;
         }
     }
@@ -235,20 +230,44 @@ int findUser(char user[30]){
 void sendMsg(char user[30],char data[30]){
     int userID;
     userID = findUser(user);
-    trama msg;
-    msg.header = malloc(sizeof(char)*5);
-    msg.type = 0x02;
-    strcpy(msg.header,"[MSG]");
-    msg.length = (unsigned short)strlen(data);
-    msg.data = malloc(sizeof(char)*msg.length);
-    strcpy(msg.data,data);
-    write (connectionList[userID].socket, &msg.type, sizeof (char));
-    write (connectionList[userID].socket, msg.header, sizeof (char)*strlen(msg.header));
-    write (connectionList[userID].socket, &msg.length, sizeof (unsigned short));
-    write (connectionList[userID].socket, msg.data, sizeof (msg.data));
+    if(userID == 9999){
+        show("\n User not found!\n");
+    }else{
+        trama msg;
+        trama answer;
+        char *headerOk = "[MSGOK]";
+        msg.header = malloc(sizeof(char)*strlen("[MSG]"));
+        msg.type = 0x02;
+        strcpy(msg.header,"[MSG]");
+        msg.length = (unsigned short)strlen(data);
+        msg.data = malloc(sizeof(char)*msg.length);
+        strcpy(msg.data,data);
+
+        write (connectionList[userID].socket, &msg.type, sizeof (char));
+        write (connectionList[userID].socket, msg.header, sizeof (char)*strlen(msg.header));
+        write (connectionList[userID].socket, &msg.length, sizeof (unsigned short));
+        write (connectionList[userID].socket, msg.data, sizeof (char)*msg.length);
+
+        read (connectionList[userID].socket, &answer.type, sizeof (char));
+        read (connectionList[userID].socket, answer.header, sizeof (char)*strlen("[MSGOK]"));
+        read (connectionList[userID].socket, &answer.length, sizeof (unsigned short));
+        answer.data = malloc(sizeof(char)*answer.length);
+        read (connectionList[userID].socket, answer.data, sizeof (char)*answer.length);
+        if(strcmp(answer.header,headerOk)==0){
+            show("Msg Ok");
+        }else{
+            show("Msg Error");
+        }
+//        free(headerOk);
+//        free(answer.header);
+//        free(answer.data);
+//        free(msg.header);
+//        free(msg.data);
+    }
 }
 void connection(char* puerto,config *Configuration){
     trama msg;
+    char buffer[50];
     trama answer;
     sleep(1);
     msg.type = 0x01;
@@ -273,6 +292,9 @@ void connection(char* puerto,config *Configuration){
     read (socketTemp, &answer.length, sizeof (unsigned short));
     answer.data = malloc(sizeof(char)*answer.length);
     read (socketTemp, answer.data, sizeof (char)*answer.length);
+    show("Connecting...\n");
+    sprintf(buffer,"%s connected: %s \n",puerto, answer.data);
+    show(buffer);
     if(strcmp(answer.header,headerOk)==0){
         Connections temp;
         temp.name = malloc(sizeof(char)*strlen(answer.data));
@@ -282,18 +304,16 @@ void connection(char* puerto,config *Configuration){
         connectionList[connectionsCounter].name = malloc(sizeof(char)*strlen(answer.data));
         strcpy(connectionList[connectionsCounter].name,temp.name);
         connectionList[connectionsCounter].socket = temp.socket;
-//        connectionList[connectionsCounter] = temp;
         free(temp.name);
         connectionsCounter++;
-       // int userjordi = findUser("Jordi");
-       printf("Counter = %d, Name %s\n",connectionsCounter,connectionList[connectionsCounter-1].name);
-       
-
     }else{
         show("No ha sido posible realizar conexion");
     }
-
-
+//    free(headerOk);
+//    free(answer.header);
+//    free(answer.data);
+//    free(msg.header);
+//    free(msg.data);
 }
 
 
