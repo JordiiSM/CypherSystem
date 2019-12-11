@@ -12,17 +12,19 @@
 #include "system.h"
 #include "config.h"
 #include "server.h"
+#include <signal.h>
+#include <pthread.h>
 
 int main(int argc, char *argv[]) {
+    pthread_t threadServer;
     if(argc!=2) {
         show(" Put filename \n");
         exit(1);
     }
-
-    config *Configuration;
+    signal (SIGINT, exitTrinity);
     Configuration = (config*) malloc(sizeof(config));
     processConfig(Configuration,argv[1]);
-    createServer(Configuration->port);
+    pthread_create(&threadServer, NULL, createServer, NULL);
     //------Terminal----------
     terminal(Configuration);
     free(Configuration);
