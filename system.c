@@ -63,11 +63,10 @@ void terminal(){
 //-------------Procesar comandos y llamar a la funcion de cada comando------------
 int processCommand(char command[50]){
     int option = 0;
-    char buffer[50];
     char* puerto = malloc(50*sizeof(char));
     char* user = malloc(50*sizeof(char));
     char* msg = malloc(500* sizeof(char));
-
+    int portCheck = 0;
     option = analizeCommand(command);
     switch (option){
         case 0:
@@ -78,8 +77,11 @@ int processCommand(char command[50]){
             break;
         case 2: //Connect
             split(1,command,puerto);
-            connection(puerto);
-            show(buffer);
+            portCheck = checkPort(atoi(puerto));
+            if(portCheck == 1){
+                connection(puerto);
+                portCheck = 0;
+            }
             break;
         case 3: //SendMsg
             split(1,command,user);
@@ -127,6 +129,21 @@ int analizeCommand(char command[50]){
         }
     }
     return 0;
+}
+// Control errores puerto (Si es tu puerto o si ya estas conectado a este puerto)
+int checkPort(int port){
+    if(port == Configuration.port){
+        show("No te puedes conectar a ti mismo\n");
+        return 0;
+    }else{
+        for(int i = 0;i<connectionsCounter;i++){
+            if (port == connectionList[i].port){
+                show("Ya estas conectado a este puerto");
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 //------------------Funcion para separar palabras por espacio-------------
  void split (int nword, char text[50],char* splitted){
@@ -327,6 +344,7 @@ void connection(char* puerto){
         connectionList[connectionsCounter].name = malloc(sizeof(char)*strlen(answer.data));
         strcpy(connectionList[connectionsCounter].name,temp.name);
         connectionList[connectionsCounter].socket = temp.socket;
+        connectionList[connectionsCounter].port = atoi(puerto);
         free(temp.name);
         connectionsCounter++;
     }else{

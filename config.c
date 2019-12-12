@@ -47,30 +47,20 @@ void processConfig (char *filename){
     Configuration.folder = malloc(sizeof(char));
     Configuration.ip = malloc(sizeof(char));
     Configuration.connectionIP = malloc(sizeof(char));
-
-
     read_word_text(Configuration.user, fd, '\n');
-    printf("User %s\n",Configuration.user);
-
     read_word_text(Configuration.folder, fd, '\n');
-    printf("Folder %s\n",Configuration.folder);
-
     read_word_text(Configuration.ip, fd, '\n');
-    printf("Ip %s\n",Configuration.ip);
-
     read_word_text(tempport, fd, '\n');
     Configuration.port = atoi(tempport);
-
     read_word_text(Configuration.connectionIP, fd, '\n');
-
     read_word_text(tempport2, fd, '\n');
     Configuration.connectionPortIni = atoi(tempport2);
-
     read_word_text(tempport3, fd, '\n');
     Configuration.connectionPortFin = atoi(tempport3);
 
-    printf("chaeckpoiiiiiiiiiiiiiiiiint\n");
-
+    free(tempport);
+    free(tempport2);
+    free(tempport3);
     close(fd);
 
 }

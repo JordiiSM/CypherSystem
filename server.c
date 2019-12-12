@@ -1,3 +1,4 @@
+#include "config.h"
 
 #include "server.h"
 void checkTrams(trama t,int socketTemp){

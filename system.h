@@ -16,6 +16,7 @@ typedef struct {
 
     char *name;
     int socket;
+    int port;
 
 } Connections;
 
@@ -36,5 +37,6 @@ void sendMsg(char user[30], char msg[30]);
 void itoa(int num,char* buff);
 void connection(char* puerto);
 int sigueActivo(int socket);
+int checkPort(int port);
 
 #endif //CYPHERSYSTEM_SYSTEM_H
