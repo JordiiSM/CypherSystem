@@ -19,22 +19,22 @@ typedef struct {
 
 } Connections;
 
-config *Configuration;
+
 
 
 void read_keyboard(char *string);
 void show(char *string);
-void terminal(config *Configuration);
+void terminal();
 int findUser(char user[30]);
-int processCommand(char* command,config *Configuration);
+int processCommand(char* command);
 void exitTrinity();
 int analizeCommand(char command[50]);
 void split (int nword, char text[50],char* splitted);
-void showConnections(config *Configuration);
+void showConnections();
 int conectionSocket(int port);
 void sendMsg(char user[30], char msg[30]);
 void itoa(int num,char* buff);
-void connection(char* puerto, config *Configuration);
+void connection(char* puerto);
 int sigueActivo(int socket);
 
 #endif //CYPHERSYSTEM_SYSTEM_H

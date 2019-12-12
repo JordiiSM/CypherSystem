@@ -13,7 +13,7 @@
 
 void read_word_text(char *string, int fd, char hasta){
     int i = 0;
-    char *buffer = NULL;
+//    char *buffer = NULL;
     char caracter = ' ';
 
     while( caracter != hasta) {
@@ -22,38 +22,54 @@ void read_word_text(char *string, int fd, char hasta){
 
         } else {
 
-            buffer = (char *) realloc(buffer, i + 1);
+            string = (char *) realloc(string, sizeof(char)* (i + 1));
 
-            buffer[i] = caracter;
+            string[i] = caracter;
 
             if (caracter == hasta) {
-                buffer[i] = '\0';
+                string[i] = '\0';
             }
 
             i++;
         }
     }
-    strcpy(string,buffer);
-    free(buffer);
 }
-void processConfig (config *configuration, char *filename){
+void processConfig (char *filename){
     int fd;
     fd = open(filename,O_RDWR | O_APPEND | O_CREAT);
-    char tempport[5];
-    int i = 0;
-        read_word_text(configuration->user, fd, '\n');
-        username = malloc(sizeof(char)*strlen(configuration->user));
-        strcpy(username,configuration->user);
-        read_word_text(configuration->folder, fd, '\n');
-        read_word_text(configuration->ip, fd, '\n');
-        read_word_text(tempport, fd, '\n');
-        configuration->port = atoi(tempport);
-        read_word_text(configuration->connectionIP, fd, '\n');
-        read_word_text(tempport, fd, '\n');
-        configuration->connectionPortIni = atoi(tempport);
-        read_word_text(tempport, fd, '\n');
-        configuration->connectionPortFin = atoi(tempport);
-        i++;
+    printf("checkpoint2\n");
+
+    char *tempport = malloc(sizeof(char));
+    char *tempport2 = malloc(sizeof(char));
+    char *tempport3 = malloc(sizeof(char));
+
+    Configuration.user = malloc(sizeof(char));
+    Configuration.folder = malloc(sizeof(char));
+    Configuration.ip = malloc(sizeof(char));
+    Configuration.connectionIP = malloc(sizeof(char));
+
+
+    read_word_text(Configuration.user, fd, '\n');
+    printf("User %s\n",Configuration.user);
+
+    read_word_text(Configuration.folder, fd, '\n');
+    printf("Folder %s\n",Configuration.folder);
+
+    read_word_text(Configuration.ip, fd, '\n');
+    printf("Ip %s\n",Configuration.ip);
+
+    read_word_text(tempport, fd, '\n');
+    Configuration.port = atoi(tempport);
+
+    read_word_text(Configuration.connectionIP, fd, '\n');
+
+    read_word_text(tempport2, fd, '\n');
+    Configuration.connectionPortIni = atoi(tempport2);
+
+    read_word_text(tempport3, fd, '\n');
+    Configuration.connectionPortFin = atoi(tempport3);
+
+    printf("chaeckpoiiiiiiiiiiiiiiiiint\n");
 
     close(fd);
 

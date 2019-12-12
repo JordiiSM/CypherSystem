@@ -16,16 +16,16 @@ void checkTrams(trama t,int socketTemp){
         answer.type = 0x01;
         answer.header = malloc(sizeof(char)*7);
         strcpy(answer.header,"[CONOK]");
-        answer.length = (unsigned short)strlen(username);
-        answer.data = malloc(sizeof(username));
-        strcpy(answer.data,username);
+        answer.length = (unsigned short)strlen(Configuration.user);
+        answer.data = malloc(sizeof(Configuration.user));
+        strcpy(answer.data,Configuration.user);
 
         write (socketTemp, &answer.type, sizeof (char));
         write (socketTemp, answer.header, sizeof (char)*strlen("[CONOK]"));
         write (socketTemp, &answer.length, sizeof (unsigned short));
         write (socketTemp, answer.data, sizeof (char)*answer.length);//
         sleep(1);
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", username);
+        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
         show(buffer);
 
     }else if((int)t.type == 0x02){
@@ -49,7 +49,7 @@ void checkTrams(trama t,int socketTemp){
             write (socketTemp, &answer.length, sizeof (unsigned short));
             write (socketTemp, answer.data, sizeof (char)*answer.length);//
 
-            sprintf(buffer, "\n\033[1;31m $%s \033[0m", username);
+            sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
             show(buffer);
 
     }else if((int)t.type == 0x06){
@@ -61,7 +61,7 @@ void checkTrams(trama t,int socketTemp){
         show(t.data);
         show(" se ha desconectado\n");
 
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", username);
+        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
         show(buffer);
 //        answer.type = 0x06;
 //        answer.header = malloc(sizeof(char)*7);
@@ -102,7 +102,7 @@ void *createServer (){
         struct sockaddr_in s_addr;
         bzero(&s_addr, sizeof(s_addr));
         s_addr.sin_family = AF_INET;
-        s_addr.sin_port = htons(Configuration->port);
+        s_addr.sin_port = htons(Configuration.port);
         s_addr.sin_addr.s_addr = INADDR_ANY;
 
         if (bind(sockfd, (void *) &s_addr, sizeof(s_addr)) < 0) {

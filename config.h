@@ -1,22 +1,21 @@
 #ifndef CYPHERSYSTEM_CONFIG_H
 #define CYPHERSYSTEM_CONFIG_H
 
-char *username;
-
 typedef struct {
 
-    char user[50];
-    char folder[10];
-    char ip[15];
+    char *user;
+    char *folder;
+    char *ip;
     int port;
-    char connectionIP[50];
+    char *connectionIP;
     int connectionPortIni;
     int connectionPortFin;
 
 }config;
+config Configuration;
 
 
-void processConfig (config *configuration, char *filename);
+void processConfig (char *filename);
 void read_word_text(char *string, int fd, char hasta);
 
 #endif //CYPHERSYSTEM_CONFIG_H

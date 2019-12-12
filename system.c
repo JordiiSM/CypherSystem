@@ -45,23 +45,23 @@ void show(char *string){
     write(STDOUT_FILENO,string, sizeof(char) * strlen(string));
 }
 //---------------------------------------TERMINAL----------------------------------------
-void terminal(config *Configuration){
+void terminal(){
     char buffer[100];
     memset(buffer,'\0',100);
     char command[50];
     int option = 0;
     while (option != 1) {
         option = 0;
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration->user);
+        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
         show(buffer);
         read_keyboard(command);
-        option = processCommand(command,Configuration);
+        option = processCommand(command);
     }
     show(buffer);
     show(" \nBye!!\n");
 }
 //-------------Procesar comandos y llamar a la funcion de cada comando------------
-int processCommand(char command[50],config *Configuration){
+int processCommand(char command[50]){
     int option = 0;
     char buffer[50];
     char* puerto = malloc(50*sizeof(char));
@@ -74,11 +74,11 @@ int processCommand(char command[50],config *Configuration){
             show("Command not recognized");
             break;
         case 1:
-            showConnections(Configuration);
+            showConnections();
             break;
         case 2: //Connect
             split(1,command,puerto);
-            connection(puerto, Configuration);
+            connection(puerto);
             show(buffer);
             break;
         case 3: //SendMsg
@@ -137,13 +137,13 @@ int analizeCommand(char command[50]){
             splitted[j] = text[i];
             j++;
         }
-        if(text[i] == ' '){
+        if(text[i] == ' ' && text[i+1] != ' '){
             nsplit++;
         }
     }
 }
 //----------------------EJECUTA SCRIPT PARA VER CONEXIONES DISPONIBLES-----------------
-void showConnections(config *Configuration){
+void showConnections(){
     int connectionFork;
     char buffer[100];
     connectionFork = fork();
@@ -154,8 +154,8 @@ void showConnections(config *Configuration){
     if (connectionFork == 0) { //Hijo
         char *portini = malloc(sizeof(char)*4);
         char *portfin = malloc(sizeof(char)*4);
-        itoa(Configuration->connectionPortIni,portini);
-        itoa(Configuration->connectionPortFin,portfin);
+        itoa(Configuration.connectionPortIni,portini);
+        itoa(Configuration.connectionPortFin,portfin);
         sprintf(buffer, "\n\033[0;33mAVAILABLE CONNECTIONS %s / %s \n\033[0m",portini,portfin);
         show(buffer);
         char *argv[4];
@@ -257,7 +257,7 @@ void sendMsg(char user[30],char data[30]){
         msg.data = malloc(sizeof(char) * msg.length);
         strcpy(msg.data, data);
         int checkSocket = sigueActivo(connectionList[userID].socket);
-        if(checkSocket==1){
+//        if(checkSocket==1){
         //Envia mensaje
         write(connectionList[userID].socket, &msg.type, sizeof(char)) ;
         write(connectionList[userID].socket, msg.header, sizeof(char) * strlen(msg.header));
@@ -269,9 +269,9 @@ void sendMsg(char user[30],char data[30]){
         read(connectionList[userID].socket, &answer.length, sizeof(unsigned short));
         answer.data = malloc(sizeof(char) * answer.length);
         read(connectionList[userID].socket, answer.data, sizeof(char) * answer.length);
-        }else{
-            printf("Socket caido\n");
-        }
+//        }else{
+//            printf("Socket caido\n");
+//        }
 //        if(strcmp(answer.header,headerOk)==0){ //Mensaje enviado y procesado por servidor correctamente
 //            show("Msg Ok");
 //        }else{  //Error en el servidor al procesar trama
@@ -286,7 +286,7 @@ void sendMsg(char user[30],char data[30]){
 
     }
 }
-void connection(char* puerto,config *Configuration){
+void connection(char* puerto){
     trama msg;
     char buffer[50];
     trama answer;
@@ -296,9 +296,9 @@ void connection(char* puerto,config *Configuration){
     answer.header = malloc(sizeof(char)*7);
     strcpy(msg.header,"[TR_NAME]");
     char *headerOk = "[CONOK]";
-    msg.length = (unsigned short)strlen(Configuration->user);
-    msg.data = malloc(sizeof(Configuration->user));
-    strcpy(msg.data,Configuration->user);
+    msg.length = (unsigned short)strlen(Configuration.user);
+    msg.data = malloc(sizeof(Configuration.user));
+    strcpy(msg.data,Configuration.user);
 
     int socketTemp = conectionSocket(atoi(puerto)); //Realiza conexion
     if(socketTemp != 0){
@@ -306,7 +306,7 @@ void connection(char* puerto,config *Configuration){
         write (socketTemp, &msg.type, sizeof (char));
         write(socketTemp, msg.header, sizeof(char) * strlen(msg.header));
         write(socketTemp, &msg.length, sizeof(unsigned short));
-        write(socketTemp, msg.data, sizeof(char) * strlen(Configuration->user));
+        write(socketTemp, msg.data, sizeof(char) * strlen(Configuration.user));
 
         //Recibe respuesta
         read (socketTemp, &answer.type, sizeof (char));
@@ -345,9 +345,9 @@ void exitTrinity(){
     bye.type = 0x06;
     bye.header = malloc(sizeof(char)*strlen("[]"));
     strcpy(bye.header,"[]");
-    bye.length = (unsigned short)strlen(Configuration->user);
-    bye.data = malloc(sizeof(Configuration->user));
-    strcpy(bye.data,Configuration->user);
+    bye.length = (unsigned short)strlen(Configuration.user);
+    bye.data = malloc(sizeof(Configuration.user));
+    strcpy(bye.data,Configuration.user);
     for(int i = 0;i<connectionsCounter;i++){
         write (connectionList[i].socket, &bye.type, sizeof (char));
         write (connectionList[i].socket, bye.header, sizeof (char)*strlen(bye.header));

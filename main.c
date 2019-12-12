@@ -1,7 +1,7 @@
 /////////////////////////////////////////////
 /////////-----JORDI SABANES------///////////
 ////////-------JOAN CUSCO------////////////
-/////////////////////////////////////////
+////////////////////////////////////////
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -16,17 +16,19 @@
 #include <pthread.h>
 
 int main(int argc, char *argv[]) {
+    printf("chedsdsckpoint2\n");
+
     pthread_t threadServer;
     if(argc!=2) {
         show(" Put filename \n");
         exit(1);
     }
     signal (SIGINT, exitTrinity);
-    Configuration = (config*) malloc(sizeof(config));
-    processConfig(Configuration,argv[1]);
+    printf("chedsdsckpoint2\n");
+
+    processConfig(argv[1]);
     pthread_create(&threadServer, NULL, createServer, NULL);
     //------Terminal----------
-    terminal(Configuration);
-    free(Configuration);
+    terminal();
     return 0;
 }
