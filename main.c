@@ -14,19 +14,15 @@
 #include "server.h"
 #include <signal.h>
 #include <pthread.h>
-
 int main(int argc, char *argv[]) {
-    printf("chedsdsckpoint2\n");
-
     pthread_t threadServer;
     if(argc!=2) {
         show(" Put filename \n");
         exit(1);
     }
     signal (SIGINT, exitTrinity);
-    printf("chedsdsckpoint2\n");
-
     processConfig(argv[1]);
+//    free(argv);
     pthread_create(&threadServer, NULL, createServer, NULL);
     //------Terminal----------
     terminal();

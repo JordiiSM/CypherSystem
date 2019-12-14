@@ -9,13 +9,13 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "system.h"
-
-
+#include "config.h"
 
 #ifndef CYPHERSYSTEM_SERVER_H
 #define CYPHERSYSTEM_SERVER_H
 
+
 void *createServer();
-void checkTrams(trama t,int socketTemp);
+void checkTrams(char type,int socketTemp,char **username);
 
 #endif //CYPHERSYSTEM_SERVER_H
