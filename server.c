@@ -6,7 +6,6 @@ void checkTrams(char type, int socketTemp, char **username) {
     trama answer;
     trama t;
     if ((int) type == 0x01) {
-        char buffer[50];
         t.header = malloc(sizeof(char) * strlen("[TR_NAME]"));
         read(socketTemp, t.header, sizeof(char) * strlen("[TR_NAME]"));
         read(socketTemp, &t.length, sizeof(unsigned short));
@@ -29,15 +28,18 @@ void checkTrams(char type, int socketTemp, char **username) {
         write(socketTemp, &answer.length, sizeof(unsigned short));
         write(socketTemp, answer.data, sizeof(char) * answer.length);//
         sleep(1);
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
-        show(buffer);
+
+        show("\n\033[1;31m $");
+        show(Configuration.user);
+        show(" \033[0m");
+
         free(t.header);
         free(t.data);
         free(answer.data);
         free(answer.header);
 
     } else if ((int) type == 0x02) {
-        char buffer[50];
+//        char buffer[50];
             t.header = malloc(sizeof(char)*strlen("[MSG]"));
 //        t.header = malloc(sizeof(char) * 6);
             read (socketTemp,t.header, sizeof(char)*strlen("[MSG]"));
@@ -75,12 +77,13 @@ void checkTrams(char type, int socketTemp, char **username) {
         free(answer.data);
         free(answer.header);
 
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
-        show(buffer);
+        show("\n\033[1;31m $");
+        show(Configuration.user);
+        show(" \033[0m");
+
 
 
     } else if ((int) type == 0x06) {
-        char buffer[50];
         t.header = malloc(sizeof(char) * strlen("[]"));
         read(socketTemp, t.header, sizeof(char) * strlen("[]"));
         read(socketTemp, &t.length, sizeof(unsigned short));
@@ -90,8 +93,10 @@ void checkTrams(char type, int socketTemp, char **username) {
         show(" se ha desconectado\n");
         free(t.data);
         free(t.header);
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
-        show(buffer);
+
+        show("\n\033[1;31m $");
+        show(Configuration.user);
+        show(" \033[0m");
 
         answer.type = 0x06;
         answer.header = malloc(sizeof(char) * strlen("[CONKO]"));
@@ -106,6 +111,7 @@ void checkTrams(char type, int socketTemp, char **username) {
 
         free(answer.header);
         free(answer.data);
+//        close(socketTemp);
     }
 
 }
@@ -120,12 +126,10 @@ void *sockThread(void *arg) {
         checkTrams(type, newsock, &username);
         type = 0000;
         sleep(1);
-    } while (type != 0x06); //avis signal
-    if (type == 0x06) {
-        show("SERVER CLOSED");
+    } while (exitThread == 0); //avis signal
+       // show("SERVER CLOSED");
         free(username);
-    }
-    close(newsock);
+        close(newsock);
     return EXIT_SUCCESS;
 }
 
@@ -134,8 +138,8 @@ void *createServer() {
     pthread_t *thread;
     thread = malloc(sizeof(pthread_t));
     int i = 0;
-    int *newsock;
-    newsock = malloc(sizeof(int));
+    int *newsock = NULL;
+//    newsock = malloc(sizeof(int));
     int estat;
     int sockfd;
     sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -174,7 +178,10 @@ void *createServer() {
         }
         //Funcion cliente
 
-    } while (1);
+    }while(exitThread == 0);
+//    free(newsock);
+    printf("exit socket\n");
+    return EXIT_SUCCESS;
     //hacer frees
 
 }

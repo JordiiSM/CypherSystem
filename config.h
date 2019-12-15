@@ -19,7 +19,7 @@ typedef struct {
 
 }config;
 config Configuration;
-
+int exitThread;
 void processConfig (char *filename);
 void read_word_text(char **string, int fd, char hasta);
 

@@ -39,23 +39,22 @@ void show(char *string) {
 
 //---------------------------------------TERMINAL----------------------------------------
 void terminal() {
-//     int size = 0;
-//    char buffer[100];
-//    memset(buffer,'\0',100);
-    char buffer[50];
     int option = 0;
-    while (option != 1) {
+    do{
         option = 0;
-        sprintf(buffer, "\n\033[1;31m $%s \033[0m", Configuration.user);
-        show(buffer);
+        show("\n\033[1;31m $");
+        show(Configuration.user);
+        show(" \033[0m");
         char *command = NULL; //cambiar
 
         read_keyboard(&command);
 //        printf("Command --> %s\n",command);
         option = processCommand(command);
         free(command);
-    }
-    show(buffer);
+    }while (option != 1 || exitThread == 0);
+    show("\n\033[1;31m ");
+    show(Configuration.user);
+    show(" \033[0m");
     show(" \nBye!!\n");
 }
 
@@ -121,7 +120,7 @@ int analizeCommand(char *command, char **buffer) {
     while (j <= max) {
 
         if (command[j] != ' ') {
-            *buffer = (char *) realloc(*buffer, sizeof(char) * (i + 1));
+            *buffer = (char *) realloc(*buffer, sizeof(char) * (i + 2));
             (*buffer)[i + 1] = '\0';
             (*buffer)[i] = command[j];
 //            printf("command %c\n",command[j]);
@@ -346,7 +345,6 @@ void sendMsg(char *user, char *data) {
 
 void connection(char *puerto) {
     trama msg;
-    char buffer[50];
     trama answer;
     sleep(1);
     msg.type = 0x01;
@@ -372,8 +370,8 @@ void connection(char *puerto) {
         answer.data = malloc(sizeof(char) * answer.length);
         read(socketTemp, answer.data, sizeof(char) * answer.length);
         show("Connecting...\n");
-        sprintf(buffer, "%d connected: %s \n", atoi(puerto), answer.data);
-        show(buffer);
+        show("Connected: ");
+        show(answer.data);
 
         if (strcmp(answer.header, headerOk) == 0) {
             Connections temp;
@@ -394,6 +392,8 @@ void connection(char *puerto) {
         free(msg.data);
         free(answer.header);
         free(answer.data);
+//        close(*sockserver);
+//        free(sockserver);
     }
 
 }
@@ -405,7 +405,6 @@ void exitTrinity() {
     bye.type = 0x06;
     bye.length = (unsigned short) strlen(Configuration.user);
     for (int i = 0; i < connectionsCounter; i++) {
-
         write(connectionList[i].socket, &bye.type, sizeof(char));
         bye.header = malloc(sizeof(char) * strlen("[]"));
         strcpy(bye.header, "[]");
@@ -425,16 +424,15 @@ void exitTrinity() {
         read(connectionList[i].socket, answer.data, sizeof(char) * answer.length);
         free(answer.header);
         free(answer.data);
-
         free(connectionList[i].name);
-
     }
 
     free(Configuration.user);
     free(Configuration.connectionIP);
     free(Configuration.folder);
     free(Configuration.ip);
-//    exitThread = 1;
+    exitThread = 1;
+    sleep(2);
     exit(1);
 
 }

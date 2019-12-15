@@ -31,7 +31,6 @@ typedef struct {
     int port;
 
 } Connections;
-//int exitThread = 0;
 
 void read_keyboard(char **string);
 void show(char *string);
